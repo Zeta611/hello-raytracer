@@ -12,7 +12,7 @@ template<
     typename T,
     typename = typename std::enable_if<std::is_arithmetic<T>::value, T>::type
 >
-struct vec;
+class vec;
 
 template<int DIM, typename T>
 vec<DIM, T> operator+(const vec<DIM, T>&, const vec<DIM, T>&);
@@ -24,7 +24,8 @@ template<int DIM, typename T>
 T operator*(const vec<DIM, T>&, const vec<DIM, T>&);
 
 template<int DIM, typename T, typename>
-struct vec {
+class vec {
+public:
     vec() : data() {}
 
     vec(std::initializer_list<T> lst)
@@ -61,6 +62,8 @@ struct vec {
     {
         return std::sqrtf(static_cast<float>(magnitude_sq()));
     }
+
+    static inline vec zero = vec();
 
 private:
     T data[DIM];

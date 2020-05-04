@@ -1,6 +1,8 @@
-#include <fstream>
 #include <array>
-#include <iostream>
+#include <cmath>
+#include <fstream>
+#include <memory>
+#include <utility>
 #include "color.h"
 #include "sphere.h"
 #include "vec.h"
@@ -17,37 +19,42 @@ color cast_ray(
     }
 }
 
+std::pair<float, float> trans_scene(
+    int i, int j, float width, float height, float fov_2
+) {
+    const float aspect_ratio = height / width;
+    const float t = std::tanf(fov_2);
+    return {
+        ((2.f * i + 1.f) / width - 1.f) * t / aspect_ratio,
+        ((2.f * j + 1.f) / height - 1.f) * t
+    };
+}
+
 void render()
 {
-    constexpr int unit = 1000;
     constexpr int width = 4096;
     constexpr int height = 2160;
-    constexpr int depth = unit;
+    constexpr float fov_2 = M_PI / 3;
 
-    auto *const canvas = new std::array<color, width * height>;
-    const sphere sphere({0.f, 0.f, 2.f * depth}, unit / 2.f);
-    const vec3f origin{0.f, 0.f, 0.f};
+    const auto scene = std::make_unique<std::array<color, width * height>>();
+    const sphere sphere({0.f, 0.f, 2.f}, 1.f);
 
     for (int j = 0; j < height; ++j) {
         for (int i = 0; i < width; ++i) {
-            const float x = i - width / 2;
-            const float y = j - height / 2;
-            const vec3f canvas_pt{x, y, depth};
-            (*canvas)[i + j * width] = cast_ray(origin, canvas_pt, sphere);
+            const auto [x, y] = trans_scene(i, j, width, height, fov_2);
+            (*scene)[i + j * width] = cast_ray(vec3f::zero, {x, y, 1}, sphere);
         }
     }
 
     std::ofstream ofs;
     ofs.open("./out.ppm");
     ofs << "P6\n" << width << " " << height << "\n255\n";
-    for (const auto& point : *canvas) {
+    for (const auto& point : *scene) {
         for (int i = 0; i < 3; ++i) {
             ofs << static_cast<char>(255 * point[i]);
         }
     }
     ofs.close();
-
-    delete canvas;
 }
 
 int main()

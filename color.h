@@ -4,7 +4,8 @@
 #include <cassert>
 #include <initializer_list>
 
-struct color {
+class color {
+public:
     color();
     color(std::initializer_list<float> lst);
 
@@ -20,4 +21,3 @@ struct color {
 };
 
 #endif /* ifndef COLOR_H */
-

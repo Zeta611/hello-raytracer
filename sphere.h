@@ -3,7 +3,8 @@
 
 #include "vec.h"
 
-struct sphere {
+class sphere {
+public:
     vec3f center;
     float radius;
 
