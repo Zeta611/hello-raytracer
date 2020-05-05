@@ -9,15 +9,22 @@ public:
     color();
     color(std::initializer_list<float> lst);
 
-    float red = 0.f;
-    float green = 0.f;
-    float blue = 0.f;
+    float red_comp = 0.f;
+    float green_comp = 0.f;
+    float blue_comp = 0.f;
 
     float& operator[](int i);
     const float& operator[](int i) const;
 
-    static const color background;
-    static const color foreground;
+    static const color red;
+    static const color orange;
+    static const color yellow;
+    static const color green;
+    static const color blue;
+    static const color indigo;
+    static const color purple;
+    static const color black;
+    static const color white;
 };
 
 #endif /* ifndef COLOR_H */

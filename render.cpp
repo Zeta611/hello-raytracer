@@ -20,9 +20,9 @@ color cast_ray(
         [&](sphere s) -> bool { return s.ray_intersects(origin, direction); }
     );
     if (result != spheres.end()) {
-        return color::foreground;
+        return color::white;
     } else {
-        return color::background;
+        return color::black;
     }
 }
 
