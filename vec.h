@@ -98,7 +98,7 @@ T operator*(const vec<DIM, T>& lhs, const vec<DIM, T>& rhs)
 {
     T result = 0;
     for (int i = 0; i < DIM; ++i) {
-        result = lhs.data[i] * rhs.data[i];
+        result += lhs.data[i] * rhs.data[i];
     }
     return result;
 }
