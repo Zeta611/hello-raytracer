@@ -12,15 +12,27 @@
 color cast_ray(
     const vec3f &origin,
     const vec3f &direction,
-    const std::vector<sphere>& spheres
+    std::vector<sphere>& spheres
 ) {
+    // sort by the distance from `origin`
+    std::sort(
+        spheres.begin(),
+        spheres.end(),
+        [&](sphere s1, sphere s2) -> bool {
+            return (s1.center - origin).magnitude_sq()
+                < (s2.center - origin).magnitude_sq();
+        }
+    );
+
+    // find the first sphere that the ray intersects with
     const auto result = std::find_if(
         spheres.begin(),
         spheres.end(),
         [&](sphere s) -> bool { return s.ray_intersects(origin, direction); }
     );
+
     if (result != spheres.end()) {
-        return color::white;
+        return result->surface_material.diffuse_color;
     } else {
         return color::black;
     }
@@ -37,7 +49,7 @@ std::pair<float, float> trans_scene(
     };
 }
 
-void render(const std::vector<sphere>& spheres)
+void render(std::vector<sphere>& spheres)
 {
     constexpr int width = 1024;
     constexpr int height = 768;
@@ -66,11 +78,11 @@ void render(const std::vector<sphere>& spheres)
 
 int main()
 {
-    const std::vector spheres = {
-        sphere({-2.f, 0.f, 16.f}, 2.f),
-        sphere({-1.f, -1.5f, 12.f}, 2.f),
-        sphere({1.5f, -0.5f, 18.f}, 3.f),
-        sphere({7.f, 5.f, 18.f}, 4.f),
+    std::vector spheres = {
+        sphere({-2.f, 0.f, 16.f}, 2.f, {color::red}),
+        sphere({-1.f, -1.5f, 12.f}, 2.f, {color::orange}),
+        sphere({1.5f, -0.5f, 18.f}, 3.f, {color::yellow}),
+        sphere({7.f, 5.f, 18.f}, 4.f, {color::green}),
     };
     render(spheres);
     return 0;

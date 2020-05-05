@@ -1,7 +1,10 @@
 #include "sphere.h"
 
-sphere::sphere(const vec3f &center, const float radius)
-    : center(center), radius(radius) {}
+sphere::sphere(
+    const vec3f &center,
+    const float radius,
+    const material &surface_material
+) : center(center), radius(radius), surface_material(surface_material) {}
 
 bool sphere::ray_intersects(const vec3f &origin, const vec3f &direction) const
 {
