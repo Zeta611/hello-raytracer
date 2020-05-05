@@ -60,8 +60,7 @@ void render(std::vector<sphere>& spheres)
     for (int j = 0; j < height; ++j) {
         for (int i = 0; i < width; ++i) {
             const auto [x, y] = trans_scene(i, j, width, height, fov_2);
-            const vec3f scene_pt = {x, y, 1};
-            (*scene)[i + j * width] = cast_ray(vec3f::zero, scene_pt, spheres);
+            (*scene)[i + j * width] = cast_ray(origin, {x, y, 1}, spheres);
         }
     }
 
