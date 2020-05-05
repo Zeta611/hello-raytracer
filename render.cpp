@@ -12,18 +12,8 @@
 color cast_ray(
     const vec3f &origin,
     const vec3f &direction,
-    std::vector<sphere>& spheres
+    const std::vector<sphere>& spheres
 ) {
-    // sort by the distance from `origin`
-    std::sort(
-        spheres.begin(),
-        spheres.end(),
-        [&](sphere s1, sphere s2) -> bool {
-            return (s1.center - origin).magnitude_sq()
-                < (s2.center - origin).magnitude_sq();
-        }
-    );
-
     // find the first sphere that the ray intersects with
     const auto result = std::find_if(
         spheres.begin(),
@@ -54,8 +44,18 @@ void render(std::vector<sphere>& spheres)
     constexpr int width = 1024;
     constexpr int height = 768;
     constexpr float fov_2 = M_PI_4;
-
+    const vec3f origin = vec3f::zero;
     const auto scene = std::make_unique<std::array<color, width * height>>();
+
+    // sort by the distance from `origin`
+    std::sort(
+        spheres.begin(),
+        spheres.end(),
+        [&](sphere s1, sphere s2) -> bool {
+            return (s1.center - origin).magnitude_sq()
+                < (s2.center - origin).magnitude_sq();
+        }
+    );
 
     for (int j = 0; j < height; ++j) {
         for (int i = 0; i < width; ++i) {
