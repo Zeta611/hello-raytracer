@@ -23,6 +23,15 @@ vec<DIM, T> operator-(const vec<DIM, T>&, const vec<DIM, T>&);
 template<int DIM, typename T>
 T operator*(const vec<DIM, T>&, const vec<DIM, T>&);
 
+template<int DIM, typename T>
+vec<DIM, T> operator*(const vec<DIM, T>&, T);
+
+template<int DIM, typename T>
+vec<DIM, T> operator*(T, const vec<DIM, T>&);
+
+template<int DIM, typename T>
+vec<DIM, T> operator/(const vec<DIM, T>&, T);
+
 template<int DIM, typename T, typename>
 class vec {
 public:
@@ -63,6 +72,11 @@ public:
         return std::sqrtf(static_cast<float>(magnitude_sq()));
     }
 
+    vec normalized() const
+    {
+        return *this / magnitude();
+    }
+
     static inline vec zero = vec();
 
 private:
@@ -71,6 +85,9 @@ private:
     friend vec operator+<>(const vec&, const vec&);
     friend vec operator-<>(const vec&, const vec&);
     friend T operator*<>(const vec&, const vec&);
+    friend vec operator*<>(const vec&, T);
+    friend vec operator*<>(T, const vec&);
+    friend vec operator/<>(const vec&, T);
 };
 
 template<int DIM, typename T>
@@ -99,6 +116,36 @@ T operator*(const vec<DIM, T>& lhs, const vec<DIM, T>& rhs)
     T result = 0;
     for (int i = 0; i < DIM; ++i) {
         result += lhs.data[i] * rhs.data[i];
+    }
+    return result;
+}
+
+template<int DIM, typename T>
+vec<DIM, T> operator*(const vec<DIM, T>& vector, T scalar)
+{
+    vec<DIM, T> result;
+    for (int i = 0; i < DIM; ++i) {
+        result.data[i] = vector.data[i] * scalar;
+    }
+    return result;
+}
+
+template<int DIM, typename T>
+vec<DIM, T> operator*(T scalar, const vec<DIM, T>& vector)
+{
+    vec<DIM, T> result;
+    for (int i = 0; i < DIM; ++i) {
+        result.data[i] = scalar * vector.data[i];
+    }
+    return result;
+}
+
+template<int DIM, typename T>
+vec<DIM, T> operator/(const vec<DIM, T>& vector, T scalar)
+{
+    vec<DIM, T> result;
+    for (int i = 0; i < DIM; ++i) {
+        result.data[i] = vector.data[i] / scalar;
     }
     return result;
 }

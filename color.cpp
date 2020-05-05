@@ -5,6 +5,9 @@
 
 color::color() {}
 
+color::color(float red, float green, float blue)
+    : red_comp(red), green_comp(green), blue_comp(blue) {}
+
 color::color(std::initializer_list<float> lst)
 {
     for (
@@ -56,3 +59,21 @@ const color color::indigo = {0.29412f, 0.f, 0.50980f};
 const color color::purple = {0.50196f, 0.f, 0.50196f};
 const color color::black = {0.f, 0.f, 0.f};
 const color color::white = {1.f, 1.f, 1.f};
+
+color operator*(float k, const color& c)
+{
+    return color(
+        std::min(1.f, std::max(0.f, k * c.red_comp)),
+        std::min(1.f, std::max(0.f, k * c.green_comp)),
+        std::min(1.f, std::max(0.f, k * c.blue_comp))
+    );
+}
+
+color operator*(const color& c, float k)
+{
+    return color(
+        std::min(1.f, std::max(0.f, k * c.red_comp)),
+        std::min(1.f, std::max(0.f, k * c.green_comp)),
+        std::min(1.f, std::max(0.f, k * c.blue_comp))
+    );
+}

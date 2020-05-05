@@ -7,6 +7,7 @@
 class color {
 public:
     color();
+    color(float red, float green, float blue);
     color(std::initializer_list<float> lst);
 
     float red_comp = 0.f;
@@ -26,5 +27,8 @@ public:
     static const color black;
     static const color white;
 };
+
+color operator*(float, const color&);
+color operator*(const color&, float);
 
 #endif /* ifndef COLOR_H */
