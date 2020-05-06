@@ -79,6 +79,15 @@ public:
 
     static inline vec zero = vec();
 
+    vec operator-() const
+    {
+        vec<DIM, T> result;
+        for (int i = 0; i < DIM; ++i) {
+            result.data[i] = -this->data[i];
+        }
+        return result;
+    }
+
 private:
     T data[DIM];
 

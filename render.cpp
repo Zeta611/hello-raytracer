@@ -34,13 +34,26 @@ color cast_ray(
     if (result == spheres.end()) { return color::black; }
 
     const vec3f normal = (hit_point - result->center).normalized();
-    float diffuse_intensity = 0;
+    const auto& material = result->surface_material;
+    float diffuse_intensity = 0.f;
+    float specular_intensity = 0.f;
+
+    // See https://en.wikipedia.org/wiki/Phong_reflection_model
     for (const auto& light : lights) {
         const vec3f light_dir = (hit_point - light.position).normalized();
         const float cosine = -(normal * light_dir);
         diffuse_intensity += std::max(0.f, light.intensity * cosine);
+
+        const vec3f reflect_dir = light_dir + 2.f * cosine * normal;
+        const float reflect_align = -(reflect_dir * direction.normalized());
+        const float reflect_comp = std::powf(
+            std::max(0.f, reflect_align),
+            material.shininess
+        );
+        specular_intensity += reflect_comp * light.intensity;
     }
-    return diffuse_intensity * result->surface_material.diffuse_color;
+    return diffuse_intensity * material.diffuse_color * material.diffuse_const
+        + specular_intensity * color::white * material.specular_const;
 }
 
 std::pair<float, float> trans_scene(
@@ -100,13 +113,15 @@ int main()
     constexpr int height = 1536;
     constexpr float fov_2 = M_PI_4;
     std::vector spheres = {
-        sphere({-2.f, 0.f, 16.f}, 2.f, {color::red}),
-        sphere({-1.f, -1.5f, 12.f}, 2.f, {color::orange}),
-        sphere({1.5f, -0.5f, 18.f}, 3.f, {color::yellow}),
-        sphere({7.f, 5.f, 18.f}, 4.f, {color::green}),
+        sphere({-3.f, 3.f, 11.f}, 2.5f, material::rubberize({.3f, .1f, .1f})),
+        sphere({-1.f, -1.5f, 12.f}, 2.f, material::ivory),
+        sphere({1.5f, -.5f, 18.f}, 3.f, material::silver),
+        sphere({7.f, 5.f, 18.f}, 4.f, material::gold),
     };
     const std::vector lights = {
-        light({-6.f, -6.f, 3.f}, 1.3f)
+        light({-20.f, -20.f, -20.f}, 1.2f),
+        light({30.f, -50.f, 25.f}, 1.4f),
+        light({30.f, -20.f, -30.f}, .8f)
     };
     render(width, height, fov_2, spheres, lights);
     return 0;

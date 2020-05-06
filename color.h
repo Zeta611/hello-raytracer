@@ -26,8 +26,13 @@ public:
     static const color purple;
     static const color black;
     static const color white;
+
+    static const color gold;
+    static const color silver;
+    static const color ivory;
 };
 
+color operator+(const color&, const color&);
 color operator*(float, const color&);
 color operator*(const color&, float);
 

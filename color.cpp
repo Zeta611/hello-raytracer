@@ -1,5 +1,5 @@
+#include <algorithm>
 #include <stdexcept>
-#include <string>
 #include <utility>
 #include "color.h"
 
@@ -50,15 +50,28 @@ const float& color::operator[](int i) const
     }
 }
 
-const color color::red = {1.f, 0.f, 0.f};
-const color color::orange = {1.f, 0.64706f, 0.f};
-const color color::yellow = {1.f, 1.f, 0.f};
-const color color::green = {0.f, 1.f, 0.f};
-const color color::blue = {0.f, 0.f, 1.f};
-const color color::indigo = {0.29412f, 0.f, 0.50980f};
-const color color::purple = {0.50196f, 0.f, 0.50196f};
-const color color::black = {0.f, 0.f, 0.f};
-const color color::white = {1.f, 1.f, 1.f};
+const color color::red{1.f, 0.f, 0.f};
+const color color::orange{1.f, 0.64706f, 0.f};
+const color color::yellow{1.f, 1.f, 0.f};
+const color color::green{0.f, 1.f, 0.f};
+const color color::blue{0.f, 0.f, 1.f};
+const color color::indigo{0.29412f, 0.f, 0.50980f};
+const color color::purple{0.50196f, 0.f, 0.50196f};
+const color color::black{0.f, 0.f, 0.f};
+const color color::white{1.f, 1.f, 1.f};
+
+const color color::gold{1.f, 0.84314f, 0.f};
+const color color::silver{0.66667f, 0.66275f, 0.67843f};
+const color color::ivory{1.f, 1.f, 0.62745f};
+
+color operator+(const color& lhs, const color& rhs)
+{
+    return color(
+        std::min(1.f, lhs.red_comp + rhs.red_comp),
+        std::min(1.f, lhs.green_comp + rhs.green_comp),
+        std::min(1.f, lhs.blue_comp + rhs.blue_comp)
+    );
+}
 
 color operator*(float k, const color& c)
 {
