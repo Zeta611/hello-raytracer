@@ -5,8 +5,8 @@
 
 class light {
 public:
-    light(const vec3f& position, float intensity);
-    vec3f position;
+    light(const vec3f& src, float intensity);
+    vec3f src;
     float intensity;
 };
 

@@ -1,4 +1,4 @@
 #include "light.h"
 
-light::light(const vec3f& position, float intensity)
-    : position(position), intensity(intensity) {}
+light::light(const vec3f& src, float intensity)
+    : src(src), intensity(intensity) {}

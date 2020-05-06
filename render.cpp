@@ -17,11 +17,12 @@ color cast_ray(
     const std::vector<light>& lights
 ) {
     vec3f hit_point;
-    // find the first sphere that the ray intersects with
+    // find the first sphere that the ray intersects with and update
+    // `hit_point`
     const auto result = std::find_if(
         spheres.begin(),
         spheres.end(),
-        [&](const sphere s) -> bool {
+        [&](const sphere& s) -> bool {
             if (const auto opt = s.ray_hit_point(origin, direction)) {
                 hit_point = *opt;
                 return true;
@@ -30,7 +31,6 @@ color cast_ray(
             }
         }
     );
-
     if (result == spheres.end()) { return color::black; }
 
     const vec3f normal = (hit_point - result->center).normalized();
@@ -40,7 +40,27 @@ color cast_ray(
 
     // See https://en.wikipedia.org/wiki/Phong_reflection_model
     for (const auto& light : lights) {
-        const vec3f light_dir = (hit_point - light.position).normalized();
+        const vec3f light_to_hit_point = hit_point - light.src;
+        const vec3f light_dir = light_to_hit_point.normalized();
+
+        // check if the light is blocked by another sphere
+        const auto blocked = std::find_if(
+            spheres.begin(),
+            spheres.end(),
+            [&](const sphere& s) -> bool {
+                // skip `result`, which is the sphere we are rendering
+                if (&s == &*result) { return false; }
+                if (const auto opt = s.ray_hit_point(light.src, light_dir)) {
+                    // check if `opt` is in front of `result`
+                    return light_to_hit_point.magnitude_sq()
+                        >= (*opt - light.src).magnitude_sq();
+                } else {
+                    return false;
+                }
+            }
+        );
+        if (blocked != spheres.end()) { continue; }
+
         const float cosine = -(normal * light_dir);
         diffuse_intensity += std::max(0.f, light.intensity * cosine);
 
