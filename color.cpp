@@ -60,7 +60,7 @@ const color color::purple{0.50196f, 0.f, 0.50196f};
 const color color::black{0.f, 0.f, 0.f};
 const color color::white{1.f, 1.f, 1.f};
 
-const color color::gold{1.f, 0.84314f, 0.f};
+const color color::gold{1.f, 0.74314f, 0.f};
 const color color::silver{0.66667f, 0.66275f, 0.67843f};
 const color color::ivory{1.f, 1.f, 0.62745f};
 

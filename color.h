@@ -1,7 +1,6 @@
 #ifndef COLOR_H
 #define COLOR_H
 
-#include <cassert>
 #include <initializer_list>
 
 class color {
