@@ -2,11 +2,15 @@
 #include <array>
 #include <cmath>
 #include <fstream>
+#include <iostream>
 #include <memory>
+#include <stdexcept>
 #include <utility>
 #include <vector>
 #include "color.h"
 #include "light.h"
+#include "lua.hpp"
+#include "lua_helpers.h"
 #include "sphere.h"
 #include "vec.h"
 
@@ -128,21 +132,31 @@ void render(
 }
 
 int main()
-{
+try {
     constexpr int width = 2048;
     constexpr int height = 1536;
     constexpr float fov_2 = M_PI_4;
-    std::vector spheres = {
-        sphere({-3.f, 3.f, 11.f}, 2.5f, material::rubberize({.3f, .1f, .1f})),
-        sphere({-1.f, -1.5f, 12.f}, 2.f, material::ivory),
-        sphere({1.5f, -.5f, 18.f}, 3.f, material::silver),
-        sphere({7.f, 5.f, 18.f}, 4.f, material::gold),
-    };
+
+    lua_State *L = luaL_newstate();
+    if (luaL_dofile(L, "env.lua") != LUA_OK) {
+        lua_close(L);
+        std::cerr << "env.lua not found!\n";
+        return 1;
+    }
+
+    lua_getglobal(L, "spheres");
+    auto spheres = lua_getspheres(L);
+    lua_close(L);
+
     const std::vector lights = {
         light({-20.f, -20.f, -20.f}, 1.2f),
         light({30.f, -50.f, 25.f}, 1.4f),
         light({30.f, -20.f, -30.f}, .8f)
     };
+
     render(width, height, fov_2, spheres, lights);
     return 0;
+} catch (const std::exception& e) {
+    std::cerr << e.what() << '\n';
+    return 1;
 }

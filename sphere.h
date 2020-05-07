@@ -7,15 +7,15 @@
 
 class sphere {
 public:
-    vec3f center;
-    float radius;
-    material surface_material;
-
     sphere(
         const vec3f &center,
         const float radius,
         const material &surface_material
     );
+
+    vec3f center;
+    float radius;
+    material surface_material;
 
     // Returns the hit point position wrapped inside an optional if the ray
     // intersects with the sphere.  Returns a nullopt otherwise.

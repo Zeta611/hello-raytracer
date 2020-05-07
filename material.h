@@ -10,6 +10,7 @@ struct material {
         float specular_const,
         float shininess
     );
+
     color diffuse_color;
     float diffuse_const;
     float specular_const;
