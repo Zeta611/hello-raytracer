@@ -92,7 +92,7 @@ private:
     T data[DIM];
 
     friend vec operator+<>(const vec&, const vec&);
-    friend vec operator-<>(const vec&, const vec&);
+    friend vec (::operator-<>)(const vec&, const vec&);
     friend T operator*<>(const vec&, const vec&);
     friend vec operator*<>(const vec&, T);
     friend vec operator*<>(T, const vec&);
