@@ -33,6 +33,6 @@ std::optional<vec3f> sphere::ray_hit_point(
     // sphere intersects with the ray
     const float hit_point_to_perpend_sq = radius_sq - center_to_perpend_sq;
     const float origin_to_hit_point = (origin_to_perpend >= 0.f) *
-        (origin_to_perpend - std::sqrtf(hit_point_to_perpend_sq));
+        (origin_to_perpend - sqrtf(hit_point_to_perpend_sq));
     return {origin + origin_to_hit_point * norm_direction};
 }

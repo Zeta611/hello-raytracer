@@ -1,7 +1,7 @@
-CXX = clang++
-IDIR = /usr/local/include/lua/
-CXXFLAGS = -std=c++17 -Wall -Wextra -Werror -Wpedantic -pedantic-errors -I$(IDIR)
-LFLAGS = -llua
+CXX = g++-10
+IDIR = /usr/include/lua5.3
+CXXFLAGS = -O3 -std=c++17 -Wall -Wextra -Werror -Wpedantic -pedantic-errors -I$(IDIR)
+LFLAGS = -llua5.3
 OBJS = color.o material.o light.o sphere.o render.o lua_helpers.o
 
 %.o : %.c

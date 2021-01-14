@@ -70,7 +70,7 @@ color cast_ray(
 
         const vec3f reflect_dir = light_dir + 2.f * cosine * normal;
         const float reflect_align = -(reflect_dir * direction.normalized());
-        const float reflect_comp = std::powf(
+        const float reflect_comp = powf(
             std::max(0.f, reflect_align),
             material.shininess
         );
@@ -84,7 +84,7 @@ std::pair<float, float> trans_scene(
     int i, int j, float width, float height, float fov_2
 ) {
     const float aspect_ratio = height / width;
-    const float t = std::tanf(fov_2);
+    const float t = tanf(fov_2);
     return {
         ((2.f * i + 1.f) / width - 1.f) * t / aspect_ratio,
         ((2.f * j + 1.f) / height - 1.f) * t

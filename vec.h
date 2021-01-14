@@ -69,7 +69,7 @@ public:
 
     float magnitude() const
     {
-        return std::sqrtf(static_cast<float>(magnitude_sq()));
+        return sqrtf(static_cast<float>(magnitude_sq()));
     }
 
     vec normalized() const
