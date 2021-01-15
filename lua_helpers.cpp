@@ -47,9 +47,9 @@ material lua_getmaterial(lua_State *L)
     if (!lua_istable(L, -1)) { throw lua_exception(__func__, "table"); }
     lua_getfield(L, -1, "material");
 
-    color diffuse_color = lua_getcolor(L);
+    color diffuse_color{lua_getcolor(L)};
 
-    const char *fields[3] = {"diffuse_const", "specular_const", "shininess"};
+    const char *fields[3]{"diffuse_const", "specular_const", "shininess"};
     float values[3];
     for (int i = 0; i < 3; ++i) {
         lua_getfield(L, -1, fields[i]);

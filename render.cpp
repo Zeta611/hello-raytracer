@@ -23,57 +23,59 @@ color cast_ray(
     vec3f hit_point;
     // find the first sphere that the ray intersects with and update
     // `hit_point`
-    const auto result = std::find_if(
+    const std::vector<sphere>::const_iterator result{std::find_if(
         spheres.begin(),
         spheres.end(),
         [&](const sphere& s) -> bool {
-            if (const auto opt = s.ray_hit_point(origin, direction)) {
+            if (const auto opt{s.ray_hit_point(origin, direction)}) {
                 hit_point = *opt;
                 return true;
             } else {
                 return false;
             }
         }
-    );
+    )};
+    // no sphere intersects with the ray
     if (result == spheres.end()) { return color::black; }
 
-    const vec3f normal = (hit_point - result->center).normalized();
-    const auto& material = result->surface_material;
-    float diffuse_intensity = 0.f;
-    float specular_intensity = 0.f;
+    const vec3f normal{(hit_point - result->center).normalized()};
+    const auto& material{result->surface_material};
+    float diffuse_intensity{0.f};
+    float specular_intensity{0.f};
 
     // See https://en.wikipedia.org/wiki/Phong_reflection_model
     for (const auto& light : lights) {
-        const vec3f light_to_hit_point = hit_point - light.src;
-        const vec3f light_dir = light_to_hit_point.normalized();
+        const vec3f light_to_hit_point{hit_point - light.src};
+        const vec3f light_dir{light_to_hit_point.normalized()};
 
         // check if the light is blocked by another sphere
-        const auto blocked = std::find_if(
+        const std::vector<sphere>::const_iterator blocked{std::find_if(
             spheres.begin(),
             spheres.end(),
             [&](const sphere& s) -> bool {
                 // skip `result`, which is the sphere we are rendering
                 if (&s == &*result) { return false; }
-                if (const auto opt = s.ray_hit_point(light.src, light_dir)) {
-                    // check if `opt` is in front of `result`
+                if (const auto opt_vec{s.ray_hit_point(light.src, light_dir)}) {
+                    // check if `opt_vec` is in front of `result`
                     return light_to_hit_point.magnitude_sq()
-                        >= (*opt - light.src).magnitude_sq();
+                        >= (*opt_vec - light.src).magnitude_sq();
                 } else {
                     return false;
                 }
             }
-        );
+        )};
+        // this light is blocked by another sphere
         if (blocked != spheres.end()) { continue; }
 
-        const float cosine = -(normal * light_dir);
+        const float cosine{-(normal * light_dir)};
         diffuse_intensity += std::max(0.f, light.intensity * cosine);
 
-        const vec3f reflect_dir = light_dir + 2.f * cosine * normal;
-        const float reflect_align = -(reflect_dir * direction.normalized());
-        const float reflect_comp = powf(
+        const vec3f reflect_dir{light_dir + 2.f * cosine * normal};
+        const float reflect_align{-(reflect_dir * direction.normalized())};
+        const float reflect_comp{powf(
             std::max(0.f, reflect_align),
             material.shininess
-        );
+        )};
         specular_intensity += reflect_comp * light.intensity;
     }
     return diffuse_intensity * material.diffuse_color * material.diffuse_const
@@ -81,10 +83,10 @@ color cast_ray(
 }
 
 std::pair<float, float> trans_scene(
-    int i, int j, float width, float height, float fov_2
+    int i, int j, int width, int height, float fov_2
 ) {
-    const float aspect_ratio = height / width;
-    const float t = tanf(fov_2);
+    const float aspect_ratio = static_cast<float>(height) / width;
+    const float t{tanf(fov_2)};
     return {
         ((2.f * i + 1.f) / width - 1.f) * t / aspect_ratio,
         ((2.f * j + 1.f) / height - 1.f) * t
@@ -98,14 +100,14 @@ void render(
     std::vector<sphere>& spheres,
     const std::vector<light>& lights
 ) {
-    const vec3f origin = vec3f::zero;
-    const auto scene = std::make_unique<color[]>(width * height);
+    const vec3f origin{vec3f::zero};
+    const auto scene{std::make_unique<color[]>(width * height)};
 
     // sort by the distance from `origin`
     std::sort(
         spheres.begin(),
         spheres.end(),
-        [&](sphere s1, sphere s2) -> bool {
+        [&origin](sphere s1, sphere s2) -> bool {
             return (s1.center - origin).magnitude_sq()
                 < (s2.center - origin).magnitude_sq();
         }
@@ -113,7 +115,7 @@ void render(
 
     for (int j = 0; j < height; ++j) {
         for (int i = 0; i < width; ++i) {
-            const auto [x, y] = trans_scene(i, j, width, height, fov_2);
+            const auto [x, y]{trans_scene(i, j, width, height, fov_2)};
             scene[i + j * width] = cast_ray(
                 origin, {x, y, 1}, spheres, lights
             );
@@ -133,11 +135,11 @@ void render(
 
 int main()
 try {
-    constexpr int width = 2048;
-    constexpr int height = 1536;
-    constexpr float fov_2 = M_PI_4;
+    constexpr int width{2048};
+    constexpr int height{1536};
+    constexpr float fov_2{M_PI_4};
 
-    lua_State *L = luaL_newstate();
+    lua_State *L{luaL_newstate()};
     if (luaL_dofile(L, "env.lua") != LUA_OK) {
         lua_close(L);
         std::cerr << "env.lua not found!\n";
@@ -145,10 +147,10 @@ try {
     }
 
     lua_getglobal(L, "spheres");
-    auto spheres = lua_getspheres(L);
+    auto spheres{lua_getspheres(L)};
     lua_close(L);
 
-    const std::vector lights = {
+    const std::vector lights{
         light({-20.f, -20.f, -20.f}, 1.2f),
         light({30.f, -50.f, 25.f}, 1.4f),
         light({30.f, -20.f, -30.f}, .8f)

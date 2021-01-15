@@ -11,7 +11,7 @@ color::color(float red, float green, float blue)
 color::color(std::initializer_list<float> lst)
 {
     for (
-        auto [it, i] = std::pair{lst.begin(), 0};
+        auto [it, i]{std::pair{lst.begin(), 0}};
         i < 3 && it != lst.end();
         ++i, ++it
     ) {
