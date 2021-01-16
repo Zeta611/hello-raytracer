@@ -12,11 +12,11 @@ public:
     const int width;
     const int height;
 
-    color& operator[](int);
-    const color& operator[](int) const;
+    color& operator[](const int);
+    const color& operator[](const int) const;
 
-    color& operator[](std::pair<int, int>);
-    const color& operator[](std::pair<int, int>) const;
+    color& operator[](const std::pair<int, int>&);
+    const color& operator[](const std::pair<int, int>&) const;
 
 private:
     std::vector<color> _canvas;

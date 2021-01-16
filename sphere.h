@@ -8,9 +8,9 @@
 class sphere {
 public:
     sphere(
-        const vec3f &center,
+        const vec3f& center,
         const float radius,
-        const material &surface_material
+        const material& surface_material
     );
 
     vec3f center;
@@ -20,8 +20,8 @@ public:
     // Returns the hit point position wrapped inside an optional if the ray
     // intersects with the sphere.  Returns a nullopt otherwise.
     std::optional<vec3f> ray_hit_point(
-        const vec3f &origin,
-        const vec3f &direction
+        const vec3f& origin,
+        const vec3f& direction
     ) const;
 };
 

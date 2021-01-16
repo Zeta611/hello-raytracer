@@ -15,22 +15,22 @@
 #include "sphere.h"
 #include "vec.h"
 
-vec3f reflect(const vec3f &direction, const vec3f &normal)
+vec3f reflect(const vec3f& direction, const vec3f& normal)
 {
     // Both `direction` and `normal` should be normalized.
     const float cosine{-(normal * direction)};
     return direction + 2.f * cosine * normal;
 }
 
-vec3f perturb(const vec3f &point, const vec3f &direction, const vec3f &normal)
+vec3f perturb(const vec3f& point, const vec3f& direction, const vec3f& normal)
 {
     const float k{same_direction(direction, normal) ? 1e-3f : -1e-3f};
     return k * normal + point;
 }
 
 color cast_ray(
-    const vec3f &origin,
-    const vec3f &direction,
+    const vec3f& origin,
+    const vec3f& direction,
     const std::vector<sphere>& spheres,
     const std::vector<light>& lights,
     const int recursion_depth = 0

@@ -31,12 +31,12 @@ color::color(std::initializer_list<float> lst)
     }
 }
 
-float& color::operator[](int i)
+float& color::operator[](const int i)
 {
     return const_cast<float&>(const_cast<const color&>(*this)[i]);
 }
 
-const float& color::operator[](int i) const
+const float& color::operator[](const int i) const
 {
     switch (i) {
     case 0:

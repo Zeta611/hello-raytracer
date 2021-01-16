@@ -13,8 +13,8 @@ public:
     float green_comp = 0.f;
     float blue_comp = 0.f;
 
-    float& operator[](int i);
-    const float& operator[](int i) const;
+    float& operator[](const int i);
+    const float& operator[](const int i) const;
 
     static const color red;
     static const color orange;

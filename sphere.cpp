@@ -3,14 +3,14 @@
 #include "sphere.h"
 
 sphere::sphere(
-    const vec3f &center,
+    const vec3f& center,
     const float radius,
-    const material &surface_material
+    const material& surface_material
 ) : center(center), radius(radius), surface_material(surface_material) {}
 
 std::optional<vec3f> sphere::ray_hit_point(
-    const vec3f &origin,
-    const vec3f &direction
+    const vec3f& origin,
+    const vec3f& direction
 ) const {
     const vec3f center_origin{center - origin};
     const vec3f norm_direction{direction.normalized()};
