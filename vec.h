@@ -5,6 +5,7 @@
 #include <cassert>
 #include <cmath>
 #include <initializer_list>
+#include <stdexcept>
 #include <type_traits>
 
 template<
@@ -31,6 +32,9 @@ vec<DIM, T> operator*(T, const vec<DIM, T>&);
 
 template<int DIM, typename T>
 vec<DIM, T> operator/(const vec<DIM, T>&, T);
+
+template<int DIM, typename T>
+bool same_direction(const vec<DIM, T>&, const vec<DIM, T>&);
 
 template<int DIM, typename T, typename>
 class vec {
@@ -97,6 +101,7 @@ private:
     friend vec operator*<>(const vec&, T);
     friend vec operator*<>(T, const vec&);
     friend vec operator/<>(const vec&, T);
+    friend bool same_direction<>(const vec&, const vec&);
 };
 
 template<int DIM, typename T>
@@ -157,6 +162,16 @@ vec<DIM, T> operator/(const vec<DIM, T>& vector, T scalar)
         result.data[i] = vector.data[i] / scalar;
     }
     return result;
+}
+
+template<int DIM, typename T>
+bool same_direction(const vec<DIM, T>& u, const vec<DIM, T>& v)
+{
+    T product{u * v};
+    if (product == 0) {
+        throw std::runtime_error("Direction comparison with a zero vector");
+    }
+    return product > 0;
 }
 
 typedef vec<2, float> vec2f;

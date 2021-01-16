@@ -3,19 +3,21 @@
 
 #include "color.h"
 
-struct material {
+class material {
+public:
     material(
         color diffuse_color,
         float diffuse_const,
         float specular_const,
-        float shininess
+        float shininess,
+        float reflect_const
     );
 
     color diffuse_color;
     float diffuse_const;
     float specular_const;
-    // float ambient_const;
     float shininess;
+    float reflect_const;
 
     static const material gold;
     static const material silver;

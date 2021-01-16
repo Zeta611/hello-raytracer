@@ -49,9 +49,11 @@ material lua_getmaterial(lua_State *L)
 
     color diffuse_color{lua_getcolor(L)};
 
-    const char *fields[3]{"diffuse_const", "specular_const", "shininess"};
-    float values[3];
-    for (int i = 0; i < 3; ++i) {
+    const char *fields[4]{
+        "diffuse_const", "specular_const", "shininess", "reflect_const"
+    };
+    float values[4];
+    for (int i = 0; i < 4; ++i) {
         lua_getfield(L, -1, fields[i]);
         if (!lua_isnumber(L, -1)) { throw lua_exception(__func__, "number"); }
 
@@ -59,7 +61,7 @@ material lua_getmaterial(lua_State *L)
         lua_pop(L, 1);
     }
     lua_pop(L, 1);
-    return material(diffuse_color, values[0], values[1], values[2]);
+    return material(diffuse_color, values[0], values[1], values[2], values[3]);
 }
 
 float lua_getradius(lua_State *L)
