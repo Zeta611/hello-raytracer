@@ -7,6 +7,7 @@
 #include <stdexcept>
 #include <utility>
 #include <vector>
+#include "canvas.h"
 #include "color.h"
 #include "light.h"
 #include "lua.hpp"
@@ -123,7 +124,7 @@ std::pair<float, float> trans_scene(
     };
 }
 
-std::vector<color> render(
+canvas render(
     const int width,
     const int height,
     const float fov_2,
@@ -131,9 +132,7 @@ std::vector<color> render(
     const std::vector<light>& lights
 ) {
     const vec3f origin{vec3f::zero};
-
-    std::vector<color> scene;
-    scene.reserve(width * height);
+    canvas cvs(width, height);
 
     // Sort by the distance from `origin`
     std::sort(
@@ -149,13 +148,13 @@ std::vector<color> render(
         for (int i = 0; i < width; ++i) {
             const auto [x, y]{trans_scene(i, j, width, height, fov_2)};
             const auto direction{vec3f{x, y, 1}.normalized()};
-            scene.push_back(cast_ray(origin, direction, spheres, lights, 8));
+            cvs[{i, j}] = cast_ray(origin, direction, spheres, lights, 8);
         }
     }
-    return scene;
+    return cvs;
 }
 
-void save_scene(const int width, const int height, const std::vector<color>& scene)
+void save_canvas(const int width, const int height, const canvas& cvs)
 {
     std::ofstream ofs;
     ofs.open("./out.ppm");
@@ -163,7 +162,7 @@ void save_scene(const int width, const int height, const std::vector<color>& sce
 
     for (int i = 0; i < width * height; ++i) {
         for (int j = 0; j < 3; ++j) {
-            ofs << static_cast<char>(255 * scene[i][j]);
+            ofs << static_cast<char>(255 * cvs[i][j]);
         }
     }
     ofs.close();
@@ -192,8 +191,8 @@ try {
         light({30.f, -20.f, -30.f}, .8f)
     };
 
-    const auto scene{render(width, height, fov_2, spheres, lights)};
-    save_scene(width, height, scene);
+    const auto cvs{render(width, height, fov_2, spheres, lights)};
+    save_canvas(width, height, cvs);
 
     return 0;
 } catch (const std::exception& e) {
