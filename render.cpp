@@ -3,6 +3,7 @@
 #include <cmath>
 #include <fstream>
 #include <iostream>
+#include <iterator>
 #include <memory>
 #include <stdexcept>
 #include <utility>
@@ -10,6 +11,7 @@
 #include "canvas.h"
 #include "color.h"
 #include "light.h"
+#include "lodepng/lodepng.h"
 #include "lua.hpp"
 #include "lua_helpers.h"
 #include "sphere.h"
@@ -39,8 +41,8 @@ color cast_ray(
     // Find the first sphere that the ray intersects with and update
     // `hit_point`
     const std::vector<sphere>::const_iterator result{std::find_if(
-        spheres.begin(),
-        spheres.end(),
+        std::begin(spheres),
+        std::end(spheres),
         [&](const sphere& s) -> bool {
             if (const auto opt{s.ray_hit_point(origin, direction)}) {
                 hit_point = *opt;
@@ -51,7 +53,7 @@ color cast_ray(
         }
     )};
     // No sphere intersects with the ray
-    if (result == spheres.end()) { return color::black; }
+    if (result == std::end(spheres)) { return color::black; }
 
     const vec3f normal{(hit_point - result->center).normalized()};
     const auto& material{result->surface_material};
@@ -65,8 +67,8 @@ color cast_ray(
 
         // Check if the light is blocked by another sphere
         const std::vector<sphere>::const_iterator blocked{std::find_if(
-            spheres.begin(),
-            spheres.end(),
+            std::begin(spheres),
+            std::end(spheres),
             [&](const sphere& s) -> bool {
                 // Skip `result`, which is the sphere we are rendering, as a
                 // sphere should not 'block' itself.
@@ -81,7 +83,7 @@ color cast_ray(
             }
         )};
         // This light is blocked by another sphere
-        if (blocked != spheres.end()) { continue; }
+        if (blocked != std::end(spheres)) { continue; }
 
         // Diffuse reflection
         const float cosine{-(normal * light_dir)};
@@ -136,8 +138,8 @@ canvas render(
 
     // Sort by the distance from `origin`
     std::sort(
-        spheres.begin(),
-        spheres.end(),
+        std::begin(spheres),
+        std::end(spheres),
         [&origin](sphere s1, sphere s2) -> bool {
             return (s1.center - origin).magnitude_sq()
                 < (s2.center - origin).magnitude_sq();
@@ -156,16 +158,21 @@ canvas render(
 
 void save_canvas(const int width, const int height, const canvas& cvs)
 {
-    std::ofstream ofs;
-    ofs.open("./out.ppm");
-    ofs << "P6\n" << width << " " << height << "\n255\n";
-
-    for (int i = 0; i < width * height; ++i) {
-        for (int j = 0; j < 3; ++j) {
-            ofs << static_cast<char>(255 * cvs[i][j]);
+    std::vector<unsigned char> image;
+    image.reserve(width * height * 4);
+    for (int j = 0; j < height; ++j) {
+        for (int i = 0; i < width; ++i) {
+            const auto rgb{cvs[{i, j}].rgb_array()};
+            image.insert(std::end(image), std::begin(rgb), std::end(rgb));
+            image.push_back(255);
         }
     }
-    ofs.close();
+
+    if (const auto error = lodepng::encode("out.png", image, width, height)) {
+        std::cerr
+            << "Encoder error " << error << ':'
+            << lodepng_error_text(error) << '\n';
+    }
 }
 
 int main()

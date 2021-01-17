@@ -1,4 +1,5 @@
 #include <algorithm>
+#include <array>
 #include <stdexcept>
 #include <utility>
 #include "color.h"
@@ -48,6 +49,15 @@ const float& color::operator[](const int i) const
     default:
         throw std::runtime_error("Index out of range");
     }
+}
+
+std::array<unsigned char, 3> color::rgb_array() const
+{
+    return {
+        static_cast<unsigned char>(red_comp * 255),
+        static_cast<unsigned char>(green_comp * 255),
+        static_cast<unsigned char>(blue_comp * 255)
+    };
 }
 
 const color color::red{1.f, 0.f, 0.f};

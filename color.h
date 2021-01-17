@@ -1,6 +1,7 @@
 #ifndef COLOR_H
 #define COLOR_H
 
+#include <array>
 #include <initializer_list>
 
 class color {
@@ -15,6 +16,8 @@ public:
 
     float& operator[](const int i);
     const float& operator[](const int i) const;
+
+    std::array<unsigned char, 3> rgb_array() const;
 
     static const color red;
     static const color orange;
