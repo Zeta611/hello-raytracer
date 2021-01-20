@@ -1,10 +1,8 @@
 #include <algorithm>
-#include <array>
 #include <cmath>
 #include <fstream>
 #include <iostream>
 #include <iterator>
-#include <memory>
 #include <stdexcept>
 #include <utility>
 #include <vector>
@@ -15,6 +13,7 @@
 #include "lua.hpp"
 #include "lua_helpers.h"
 #include "sphere.h"
+#include "util.h"
 #include "vec.h"
 
 vec3f reflect(const vec3f& direction, const vec3f& normal)
@@ -22,6 +21,34 @@ vec3f reflect(const vec3f& direction, const vec3f& normal)
     // Both `direction` and `normal` should be normalized.
     const float cosine{-(normal * direction)};
     return direction + 2.f * cosine * normal;
+}
+
+vec3f refract(
+    const vec3f& direction, const vec3f& normal, const float refractive_index
+) {
+    // Both `direction` and `normal` should be normalized.
+    float cosine_incidence{-(normal * direction)};
+    float relative_index;
+    vec3f new_normal;
+    if (cosine_incidence < 0.f) {
+        // Ray is inside the object.
+        cosine_incidence = -cosine_incidence;
+        relative_index = refractive_index;
+        new_normal = -normal;
+    } else {
+        relative_index = 1.f / refractive_index;
+        new_normal = normal;
+    }
+
+    const float cosine_sq_refract{
+        1 - square(relative_index) * (1 - square(cosine_incidence))
+    };
+    if (cosine_sq_refract < 0.f) {
+        return vec3f::zero;
+    }
+    const float cosine_refract{sqrtf(cosine_sq_refract)};
+    return relative_index * direction
+        + (relative_index * cosine_incidence - cosine_refract) * new_normal;
 }
 
 vec3f perturb(const vec3f& point, const vec3f& direction, const vec3f& normal)
@@ -37,21 +64,21 @@ color cast_ray(
     const std::vector<light>& lights,
     const int recursion_depth = 0
 ) {
+    // Find the closest sphere that the ray intersects with and update `hit_point`
+    auto result{std::end(spheres)};
     vec3f hit_point;
-    // Find the first sphere that the ray intersects with and update
-    // `hit_point`
-    const std::vector<sphere>::const_iterator result{std::find_if(
-        std::begin(spheres),
-        std::end(spheres),
-        [&](const sphere& s) -> bool {
-            if (const auto opt{s.ray_hit_point(origin, direction)}) {
+    for (auto it = std::begin(spheres); it != std::end(spheres); ++it) {
+        if (const auto opt{it->ray_hit_point(origin, direction)}) {
+            if (
+                result == std::end(spheres)
+                    || (*opt - origin).magnitude_sq() < (hit_point - origin).magnitude_sq()
+            ) {
                 hit_point = *opt;
-                return true;
-            } else {
-                return false;
+                result = it;
             }
         }
-    )};
+    }
+
     // No sphere intersects with the ray
     if (result == std::end(spheres)) { return color::black; }
 
@@ -100,19 +127,31 @@ color cast_ray(
     }
 
     color reflect_color{color::black};
+    color refract_color{color::black};
     if (recursion_depth > 0) {
         // Reflection
         const vec3f reflect_dir{reflect(direction, normal)};
         // Perturb `hit_point` to prevent reflecting itself.
-        const vec3f target_point{perturb(hit_point, reflect_dir, normal)};
+        const vec3f reflect_hit{perturb(hit_point, reflect_dir, normal)};
         reflect_color = cast_ray(
-            target_point, reflect_dir, spheres, lights, recursion_depth - 1
+            reflect_hit, reflect_dir, spheres, lights, recursion_depth - 1
+        );
+
+        // Refraction
+        const vec3f refract_dir{
+            refract(direction, normal, material.refractive_index)
+        };
+        // Perturb `hit_point` to prevent refracting again.
+        const vec3f refract_hit{perturb(hit_point, refract_dir, normal)};
+        refract_color = cast_ray(
+            refract_hit, refract_dir, spheres, lights, recursion_depth - 1
         );
     }
 
     return diffuse_intensity * material.diffuse_color * material.diffuse_const
         + specular_intensity * color::white * material.specular_const
-        + reflect_color * material.reflect_const;
+        + reflect_color * material.reflect_const
+        + refract_color * material.refract_const;
 }
 
 std::pair<float, float> trans_scene(
@@ -150,7 +189,7 @@ canvas render(
         for (int i = 0; i < width; ++i) {
             const auto [x, y]{trans_scene(i, j, width, height, fov_2)};
             const auto direction{vec3f{x, y, 1}.normalized()};
-            cvs[{i, j}] = cast_ray(origin, direction, spheres, lights, 8);
+            cvs[{i, j}] = cast_ray(origin, direction, spheres, lights, 4);
         }
     }
     return cvs;

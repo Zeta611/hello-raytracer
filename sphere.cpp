@@ -1,6 +1,7 @@
 #include <cmath>
 #include <optional>
 #include "sphere.h"
+#include "util.h"
 
 sphere::sphere(
     const vec3f& center,
@@ -12,27 +13,22 @@ std::optional<vec3f> sphere::ray_hit_point(
     const vec3f& origin,
     const vec3f& direction
 ) const {
-    const vec3f center_origin{center - origin};
-    const vec3f norm_direction{direction.normalized()};
-    const float origin_to_center_sq{center_origin.magnitude_sq()};
-    const float origin_to_perpend{center_origin * norm_direction};
-    const float radius_sq{radius * radius};
+    // Solve:
+    // ||x - center|| = radius
+    // x = origin + t direction (0 <= t, ||direction|| = 1)
+    const vec3f origin_center{center - origin};
+    const float inner_prod{direction * origin_center};
+    const float discriminant{
+        square(radius) - origin_center.magnitude_sq() + square(inner_prod)
+    };
+    if (discriminant < 0.f) { return {}; }
 
-    if (origin_to_perpend < 0.f && origin_to_center_sq > radius_sq) {
-        // sphere is behind the ray and does not intersect
+    const float sqrt_d{sqrtf(discriminant)};
+    if (const float t1{inner_prod - sqrt_d}; t1 >= 0.f) {
+        return origin + t1 * direction;
+    } else if (const float t2{inner_prod + sqrt_d}; t2 >= 0.f) {
+        return origin + t2 * direction;
+    } else {
         return {};
     }
-
-    const float center_to_perpend_sq{origin_to_center_sq
-        - origin_to_perpend * origin_to_perpend};
-    if (center_to_perpend_sq > radius_sq) {
-        // sphere is in front of the ray and does not intersect
-        return {};
-    }
-
-    // sphere intersects with the ray
-    const float hit_point_to_perpend_sq{radius_sq - center_to_perpend_sq};
-    const float origin_to_hit_point{(origin_to_perpend >= 0.f) *
-        (origin_to_perpend - sqrtf(hit_point_to_perpend_sq))};
-    return origin + origin_to_hit_point * norm_direction;
 }
