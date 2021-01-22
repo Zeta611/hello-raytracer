@@ -3,22 +3,28 @@
 
 #include <stdexcept>
 #include <string>
-#include <vector>
-#include "color.h"
+#include <type_traits>
+#include "light.h"
 #include "lua.hpp"
 #include "sphere.h"
-#include "vec.h"
 
 class lua_exception : public std::runtime_error {
 public:
     lua_exception(const std::string& func, const std::string& type);
 };
 
-vec3f lua_getcenter(lua_State *L);
-color lua_getcolor(lua_State *L);
-material lua_getmaterial(lua_State *L);
-float lua_getradius(lua_State *L);
-sphere lua_getsphere(lua_State *L);
+template<
+    typename T,
+    typename = typename std::enable_if<std::is_arithmetic<T>::value, T>::type
+>
+void lua_getconst(lua_State *L, T& target)
+{
+    if (!lua_isnumber(L, -1)) { throw lua_exception(__func__, "number"); }
+    target = static_cast<T>(lua_tonumber(L, -1));
+    lua_pop(L, 1);
+}
+
 std::vector<sphere> lua_getspheres(lua_State *L);
+std::vector<light> lua_getlights(lua_State *L);
 
 #endif /* ifndef LUA_HELPERS_H */

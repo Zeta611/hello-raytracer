@@ -216,26 +216,30 @@ void save_canvas(const int width, const int height, const canvas& cvs)
 
 int main()
 try {
-    constexpr int width{2048};
-    constexpr int height{1536};
-    constexpr float fov_2{M_PI_4};
-
     lua_State *L{luaL_newstate()};
+    luaL_openlibs(L);
     if (luaL_dofile(L, "env.lua") != LUA_OK) {
         lua_close(L);
         std::cerr << "env.lua not found!\n";
         return 1;
     }
 
+    int width, height;
+    float fov_2;
+    lua_getglobal(L, "width");
+    lua_getconst(L, width);
+    lua_getglobal(L, "height");
+    lua_getconst(L, height);
+    lua_getglobal(L, "fov_2");
+    lua_getconst(L, fov_2);
+
     lua_getglobal(L, "spheres");
     auto spheres{lua_getspheres(L)};
-    lua_close(L);
 
-    const std::vector lights{
-        light({-20.f, -20.f, -20.f}, 1.2f),
-        light({30.f, -50.f, 25.f}, 1.4f),
-        light({30.f, -20.f, -30.f}, .8f)
-    };
+    lua_getglobal(L, "lights");
+    const auto lights{lua_getlights(L)};
+
+    lua_close(L);
 
     const auto cvs{render(width, height, fov_2, spheres, lights)};
     save_canvas(width, height, cvs);

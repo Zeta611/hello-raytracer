@@ -1,3 +1,7 @@
+width = 2048
+height = 1536
+fov_2 = math.pi / 4
+
 spheres = {
   { -- red
     center = {-3, 3, 11},
@@ -63,5 +67,20 @@ spheres = {
       refract_const = 0,
       refractive_index = 1
     }
+  }
+}
+
+lights = {
+  {
+    src = {-20, -20, -20},
+    intensity = 1.2
+  },
+  {
+    src = {30, -50, 25},
+    intensity = 1.4
+  },
+  {
+    src = {30, -20, -30},
+    intensity = .8
   }
 }
