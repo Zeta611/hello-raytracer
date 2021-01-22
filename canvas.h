@@ -3,7 +3,8 @@
 
 #include <utility>
 #include <vector>
-#include "color.h"
+
+class color;
 
 class canvas {
 public:

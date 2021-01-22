@@ -4,9 +4,10 @@
 #include <stdexcept>
 #include <string>
 #include <type_traits>
-#include "light.h"
 #include "lua.hpp"
-#include "sphere.h"
+
+class light;
+class sphere;
 
 class lua_exception : public std::runtime_error {
 public:
